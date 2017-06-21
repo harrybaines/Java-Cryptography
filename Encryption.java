@@ -10,10 +10,8 @@ public class Encryption {
     private char[] keyword;
     private String message;
     private String ciphertext;
+    private String plaintext;
     private int keyInc;
-
-    private char[] alphabet;
-    private char[] cipherAlphabet;
 
     public Encryption(String key, String message) {
 
@@ -23,15 +21,9 @@ public class Encryption {
         keyword = new char[message.length()];
         ciphertext = message;
 
-        alphabet = new char[ALPHA_SIZE];
-        cipherAlphabet = new char[ALPHA_SIZE];
-
-        for (int i = 0; i < ALPHA_SIZE; i++) {
-            alphabet[i] = (char) (i+97);
-        }
-
         generateKeyword();
         encryptMessage();
+        decryptMessage();
 
     }
 
@@ -39,27 +31,17 @@ public class Encryption {
 
         char[] cipherchars = ciphertext.toCharArray();
 
-        int cipherOffset = 0;
-
         char calculatedChar;
         int keyInc = 0;
 
         for (int i = 0; i < message.length(); i++) {
 
-
             if (message.charAt(i) != ' ') {
 
-                int offset = message.charAt(i) - 97;
+                calculatedChar = (char) ((int)(keyword[keyInc]) + (message.charAt(i) - 97));
 
-                calculatedChar = (char) ((int)(keyword[keyInc]) + offset);
-
-                System.out.println("Keyword[keyinc] = " + keyword[keyInc] + " Char: " + calculatedChar + " offset = " + offset);
-
-                if ((int)(calculatedChar) > 90) {
-                    System.out.println("OOPS");
-                }
-
-                System.out.println(calculatedChar);
+                if ((int)(calculatedChar) > 90)
+                    calculatedChar = (char) ((int) (calculatedChar) - ALPHA_SIZE);
 
                 cipherchars[i] = calculatedChar;
 
@@ -67,23 +49,40 @@ public class Encryption {
 
                 if (keyInc > 2)
                     keyInc = 0;
-
             }
-
         }
 
         ciphertext = String.valueOf(cipherchars);
-
         return true;
-
     }
 
-    public void generateCipherAlphabet(char keyLetter) {
+    public boolean decryptMessage() {
 
-        int keyInt = (int) (keyLetter);
-        System.out.println(keyInt);
+        char[] cipherchars = ciphertext.toCharArray();
 
+        char calculatedChar;
+        int keyInc = 0;
 
+        for (int i = 0; i < message.length(); i++) {
+
+            if (message.charAt(i) != ' ') {
+
+                calculatedChar = (char) (97 + ((int)((cipherchars[i] - 97) - (int)(keyword[keyInc]))));
+
+                //if ((int)(calculatedChar) > 90)
+                    //calculatedChar = (char) ((int) (calculatedChar) - ALPHA_SIZE);
+
+                cipherchars[i] = calculatedChar;
+
+                keyInc++;
+
+                if (keyInc > 2)
+                    keyInc = 0;
+            }
+        }
+
+        plaintext = String.valueOf(cipherchars);
+        return true;
     }
 
     public boolean generateKeyword() {
@@ -105,20 +104,12 @@ public class Encryption {
 
     public void printDetails() {
 
-        System.out.println("\nALPHABET: ");
-        for (int i = 0; i < alphabet.length; i++) {
-            System.out.println(i + ": " + alphabet[i]);
-        }
-        System.out.println("MESSAGE: " + message);
-        printKeyword();
+        System.out.println("PLAINTEXT: " + message);
+        System.out.println("KEY: " + key);
+        System.out.println("KEYWORD: " + String.valueOf(keyword));
         System.out.println("CIPHERTEXT: " + ciphertext);
+        System.out.println("DECRYPTED CIPHERTEXT: " + plaintext);
 
-    }
-
-    public void printKeyword() {
-        for (int i = 0; i < keyword.length; i++) {
-            System.out.println(keyword[i]);
-        }
     }
 
     public char[] getKeyword() {
